@@ -4,10 +4,11 @@ import random
 
 keyboard = Controller()
 
-def hold_key(key, hold_duration):
-    keyboard.press(key)
-    time.sleep(hold_duration)
-    keyboard.release(key)
+def hold_key(keys, hold_duration):
+    with keyboard.pressed(keys[0]):
+        keyboard.press(keys[1])
+        time.sleep(hold_duration)
+        keyboard.release(keys[1])
 
 print('5')
 time.sleep(1)   
@@ -20,4 +21,4 @@ time.sleep(1)
 print('1')
 time.sleep(1)
 for i in range(1, 100):
-    hold_key('w', 0.05)
+    hold_key(['w', 'a'], 0.25)

@@ -7,80 +7,78 @@ from time import sleep
 class ScreenParser():
     def __init__(self) -> None:
         # Part of the screen to capture
-        monitor = {"top": 832, "left": 50, "width": 100, "height": 10}
+        self.monitor = {"top": 832, "left": 50, "width": 100, "height": 10}
         #3024 × 1964
-        heading = []
-        x_coord = []
-        y_coord = []
+        self.heading = []
+        self.x_coord = []
+        self.y_coord = []
 
-    def parse(self):
-    
-        with mss.mss() as sct:
-            
-            img = np.array(sct.grab(self.monitor))
-            # img = cv2.resize(img, dsize=(150, 50))
-            # img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-            img = cv2.bitwise_not(img)
+    def parse(self, sct):
+      
+        img = np.array(sct.grab(self.monitor))
+        # img = cv2.resize(img, dsize=(150, 50))
+        # img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        img = cv2.bitwise_not(img)
 
-            h,w,hbb = np.shape(img)
+        h,w,hbb = np.shape(img)
 
-            for py in range(0,h):
-                for px in range(0,w):
-                    if (img[py][px][0] < 50) & (img[py][px][1] < 50) & (img[py][px][2] < 50):
-                        img[py][px][0] = 0
-                        img[py][px][1] = 0
-                        img[py][px][2] = 0
-                    else:
-                        img[py][px][0] = 255
-                        img[py][px][1] = 255
-                        img[py][px][2] = 255
+        for py in range(0,h):
+            for px in range(0,w):
+                if (img[py][px][0] < 50) & (img[py][px][1] < 50) & (img[py][px][2] < 50):
+                    img[py][px][0] = 0
+                    img[py][px][1] = 0
+                    img[py][px][2] = 0
+                else:
+                    img[py][px][0] = 255
+                    img[py][px][1] = 255
+                    img[py][px][2] = 255
 
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-            # Display the picture
-            # cv2.imshow("OpenCV/Numpy normal", img)
-            coord_string = pytesseract.image_to_string(img)
-            alnum_str = ''.join(letter for letter in coord_string if letter.isdigit() | (letter == ',') | (letter == '.'))
-            
-            number_list = alnum_str.split(',') 
-            print(number_list)
-            # further refinement of values
-            if len(number_list) == 3:
-                print('here')
-                try: 
-                    if len(self.heading) > 10:
-                        if (float(number_list[0]) >= 0) & (float(number_list[0]) <= 360):
-                            self.heading.insert(0, float(number_list[0]))
-                    else:
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        # Display the picture
+        # cv2.imshow("OpenCV/Numpy normal", img)
+        coord_string = pytesseract.image_to_string(img)
+        alnum_str = ''.join(letter for letter in coord_string if letter.isdigit() | (letter == ',') | (letter == '.'))
+        
+        number_list = alnum_str.split(',') 
+        print(number_list)
+        # further refinement of values
+        if len(number_list) == 3:
+            try: 
+                if len(self.heading) > 10:
+                    if (float(number_list[0]) >= 0) & (float(number_list[0]) <= 360):
                         self.heading.insert(0, float(number_list[0]))
-                except:
-                    pass
-                
-                try: 
-                    if len(self.x_coord) > 10:
-                        if (int(number_list[1]) >= 0) & (int(number_list[1]) <= 9999):
-                            if abs(int(number_list[1]) - self.x_coord[0]) < 500:
-                                self.x_coord.insert(0, int(number_list[1]))
-                    else:
-                        self.x_coord.insert(0, int(number_list[1]))
-                except:
-                    pass
-
-                try: 
-                    if len(self.y_coord) > 10:
-                        if (int(number_list[2]) >= 0) & (int(number_list[2]) <= 9999):
-                            if abs(int(number_list[2]) - y_coord[0]) < 500:
-                                self.y_coord.insert(0, int(number_list[2]))
-                    else:
-                        self.y_coord.insert(0, int(number_list[2]))
-                except:
-                    pass
-            try:
-                print(f"heading: {self.heading[0]}")
-                print(f"x_coord: {self.x_coord[0]}")
-                print(f"y_coord: {self.y_coord[0]}")
+                else:
+                    self.heading.insert(0, float(number_list[0]))
             except:
                 pass
-            # # Press "q" to quit
-            # if cv2.waitKey(25) & 0xFF == ord("q"):
-            #     cv2.destroyAllWindows()
-            #     break
+            
+            try: 
+                if len(self.x_coord) > 10:
+                    if (int(number_list[1]) >= 0) & (int(number_list[1]) <= 9999):
+                        if abs(int(number_list[1]) - self.x_coord[0]) < 500:
+                            self.x_coord.insert(0, int(number_list[1]))
+                else:
+                    self.x_coord.insert(0, int(number_list[1]))
+            except:
+                pass
+
+            try: 
+                if len(self.y_coord) > 10:
+                    if (int(number_list[2]) >= 0) & (int(number_list[2]) <= 9999):
+                        if abs(int(number_list[2]) - self.y_coord[0]) < 500:
+                            self.y_coord.insert(0, int(number_list[2]))
+                else:
+                    self.y_coord.insert(0, int(number_list[2]))
+            except:
+                pass
+        # try:
+        #     print(f"heading: {self.heading[0]}")
+        #     print(f"x_coord: {self.x_coord[0]}")
+        #     print(f"y_coord: {self.y_coord[0]}")
+        # except:
+        #     pass
+        # # Press "q" to quit
+        # if cv2.waitKey(25) & 0xFF == ord("q"):
+        #     cv2.destroyAllWindows()
+        #     break
+        
