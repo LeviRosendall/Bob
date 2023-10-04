@@ -19,5 +19,5 @@ print('2')
 time.sleep(1)
 print('1')
 time.sleep(1)
-while True:
-    hold_key('l', 0.05)
+for i in range(1, 100):
+    hold_key('w', 0.05)
