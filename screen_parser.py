@@ -7,11 +7,15 @@ from time import sleep
 class ScreenParser():
     def __init__(self) -> None:
         # Part of the screen to capture
-        self.monitor = {"top": 832, "left": 50, "width": 100, "height": 10}
+        self.monitor = {"top": 832, "left": 40, "width": 120, "height": 10}
         #3024 × 1964
         self.heading = []
         self.x_coord = []
         self.y_coord = []
+
+        self.heading_patience = 0
+        self.x_patience = 0
+        self.y_patience = 0
 
     def parse(self, sct):
       
@@ -40,13 +44,18 @@ class ScreenParser():
         alnum_str = ''.join(letter for letter in coord_string if letter.isdigit() | (letter == ',') | (letter == '.'))
         
         number_list = alnum_str.split(',') 
-        print(number_list)
         # further refinement of values
         if len(number_list) == 3:
             try: 
                 if len(self.heading) > 10:
                     if (float(number_list[0]) >= 0) & (float(number_list[0]) <= 360):
-                        self.heading.insert(0, float(number_list[0]))
+                        if abs(float(number_list[0]) - self.heading[0]) < 50:
+                            self.heading.insert(0, float(number_list[0]))
+                        else:
+                            self.heading_patience += 1
+                            if self.heading_patience > 10:
+                                self.heading.insert(0, float(number_list[0]))
+                                self.heading_patience = 0
                 else:
                     self.heading.insert(0, float(number_list[0]))
             except:
@@ -54,9 +63,14 @@ class ScreenParser():
             
             try: 
                 if len(self.x_coord) > 10:
-                    if (int(number_list[1]) >= 0) & (int(number_list[1]) <= 9999):
+                    if (int(number_list[1]) >= 0) & (int(number_list[1]) <= 2000):
                         if abs(int(number_list[1]) - self.x_coord[0]) < 500:
                             self.x_coord.insert(0, int(number_list[1]))
+                        else:
+                            self.x_patience += 1
+                            if self.x_patience > 3:
+                                self.x_coord.insert(0, int(number_list[1]))
+                                self.x_patience = 0
                 else:
                     self.x_coord.insert(0, int(number_list[1]))
             except:
@@ -64,19 +78,26 @@ class ScreenParser():
 
             try: 
                 if len(self.y_coord) > 10:
-                    if (int(number_list[2]) >= 0) & (int(number_list[2]) <= 9999):
+                    if (int(number_list[2]) >= 0) & (int(number_list[2]) <= 2000):
                         if abs(int(number_list[2]) - self.y_coord[0]) < 500:
                             self.y_coord.insert(0, int(number_list[2]))
+                        else:
+                            self.y_patience += 1
+                            if self.y_patience > 3:
+                                self.y_coord.insert(0, int(number_list[2]))
+                                self.y_patience = 0
                 else:
                     self.y_coord.insert(0, int(number_list[2]))
             except:
                 pass
-        # try:
-        #     print(f"heading: {self.heading[0]}")
-        #     print(f"x_coord: {self.x_coord[0]}")
-        #     print(f"y_coord: {self.y_coord[0]}")
-        # except:
-        #     pass
+        try:
+            print(f"heading: {self.heading[0]}")
+            print(f"x_coord: {self.x_coord[0]}")
+            print(f"y_coord: {self.y_coord[0]}")
+        except:
+            pass
+
+
         # # Press "q" to quit
         # if cv2.waitKey(25) & 0xFF == ord("q"):
         #     cv2.destroyAllWindows()
